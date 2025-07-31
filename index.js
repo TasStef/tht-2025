@@ -1,9 +1,10 @@
 const axios = require("axios");
-const uuid = require("uuid");
+const {v4: uuidv4} = require("uuid");
 const apiConfig = require("./src/configurations/configurations.json")
 const {Profile} = require('./src/models/ProfilesResponse');
 const {Quote} = require('./src/models/QuoteResponse');
 const {Recipient} = require('./src/models/RecipientResponse')
+const {Transfer} = require('./src/models/TransferResponse')
 
 const config = {
     headers: {
@@ -68,10 +69,18 @@ const createRecipient = async () => {
     }
 };
 
-const createTransfer = async () => {
+const createTransfer = async (sourceAccount, targetAccount, quoteUuid) => {
     try {
-        const url = `https://api.sandbox.transferwise.tech`;
-        const body = {};
+        const url = `https://api.sandbox.transferwise.tech/v1/transfers`;
+        const body = {
+            // sourceAccount: sourceAccount,
+            targetAccount: targetAccount,
+            quoteUuid: quoteUuid,
+            customerTransactionId: uuidv4(),
+            details: {
+                reference: "to my friend"
+            }
+        };
         const response = await axios.post(url, body, config);
         return response.data;
     } catch (error) {
@@ -123,11 +132,14 @@ const runLogic = async () => {
     console.log(`Recipient ID: ${recipient.id}`);
 
     // Create Transfer
-    const transfer = await createTransfer();
-
+    const rawTransfer = await createTransfer(profileId, recipient.id,quote.id );
+    const transfer = new Transfer(rawTransfer);
 
     // Task 8: Console Log the Transfer ID
+    console.log(`Transfer ID: ${transfer.id}`);
+
     // Task 9: Console Log the Transfer Status
+    console.log(`Transfer Status: ${transfer.status}`)
 
     // Remember to copy all the console logs to a text file for submission.
     console.log("All tasks completed successfully.");
