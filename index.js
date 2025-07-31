@@ -2,6 +2,7 @@ const axios = require("axios");
 const uuid = require("uuid");
 const apiConfig = require("./src/configurations/configurations.json")
 const {Profile} = require('./src/models/ProfilesResponse');
+const {QuoteResponse} = require('./src/models/QuoteResponse');
 
 const config = {
     headers: {
@@ -94,21 +95,21 @@ const runLogic = async () => {
     console.log(`Profile ID: ${profileId}`); // Example Console Log
 
     // Create Quote
-    const quote = await createQuote(profileId);
+    const rawQuote = await createQuote(profileId);
+    const quote = new QuoteResponse(rawQuote);
 
     // [IMP] Select BANK_TRANSFER option for both payin and payout
     // Make sure you are selecting the correct payin and payout options to get the correct transfer fee.
     // Task 2: Console Log the Quote ID
-    console.log()
+    console.log(`Quote ID: ${quote.id}`);
     // Task 3: Console Log the Amount the recipient will receive, including the currency (e.g. "12.34 GBP")
-    console.log()
+    console.log();
     // Task 4: Console Log the Exchange Rate (4 decimal places, e.g. "1.2345")
-    console.log()
+    console.log();
     // Task 5: Console Log the Fees (total fee)
-    console.log()
+    console.log();
     // Task 6: Console Log the Delivery Estimates (human readable format)
-    console.log()
-
+    console.log();
     // Create Recipient (GBP Sort Code)
     const recipient = await createRecipient();
     // Task 7: Console Log the Recipient ID
