@@ -108,7 +108,7 @@ const runLogic = async () => {
     // Task 5: Console Log the Fees (total fee)
     console.log(`Fees (total fee): ${optionBankTransfer.price.total.value.amount}`);
     // Task 6: Console Log the Delivery Estimates (human readable format)
-    console.log();
+    console.log(`Delivery Estimates: ${new Date(optionBankTransfer.estimatedDelivery)}`);
     // Create Recipient (GBP Sort Code)
     const recipient = await createRecipient();
     // Task 7: Console Log the Recipient ID
