@@ -30,9 +30,7 @@ const createQuote = async (profileId) => {
         const body = {
             sourceCurrency: "SGD",
             targetCurrency: "GBP",
-            sourceAmount: 1000,
-            payOut: "BANK_TRANSFER",
-            preferredPayIn: "BANK_TRANSFER",
+            sourceAmount: 1000
         };
 
         const response = await axios.post(url, body, config);
@@ -103,11 +101,12 @@ const runLogic = async () => {
     // Task 2: Console Log the Quote ID
     console.log(`Quote ID: ${quote.id}`);
     // Task 3: Console Log the Amount the recipient will receive, including the currency (e.g. "12.34 GBP")
-    console.log();
+    const optionBankTransfer = quote.paymentOptions.find((option) => option.payIn === "BANK_TRANSFER" && option.payOut === "BANK_TRANSFER");
+    console.log(`Amount the recipient will receive: ${optionBankTransfer.targetAmount} ${quote.targetCurrency}`);
     // Task 4: Console Log the Exchange Rate (4 decimal places, e.g. "1.2345")
-    console.log();
+    console.log(`Exchange Rate: ${quote.rate.toFixed(4)}`);
     // Task 5: Console Log the Fees (total fee)
-    console.log();
+    console.log(`Fees (total fee): ${optionBankTransfer.price.total.value.amount}`);
     // Task 6: Console Log the Delivery Estimates (human readable format)
     console.log();
     // Create Recipient (GBP Sort Code)
