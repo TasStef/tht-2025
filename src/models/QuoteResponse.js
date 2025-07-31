@@ -1,4 +1,4 @@
-class QuoteResponse {
+class Quote {
     constructor(data) {
         this.id = data.id;
         this.sourceCurrency = data.sourceCurrency;
@@ -98,7 +98,7 @@ class Notice {
 }
 
 module.exports = {
-    QuoteResponse,
+    Quote,
     PricingConfiguration,
     Fee,
     PaymentOption,
