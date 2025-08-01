@@ -167,6 +167,7 @@ const runLogic = async () => {
     console.log("All tasks completed successfully.");
 };
 
+// Added so test units dont execute when required as a module
 if (require.main === module) {
     Promise.resolve()
         .then(() => runLogic())

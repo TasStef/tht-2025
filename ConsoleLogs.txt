@@ -1,0 +1,10 @@
+Profile ID: 28827448
+Quote ID: 9451cc50-607e-4ba7-91d9-3b803d0222e2
+Amount the recipient will receive: 582.33 GBP
+Exchange Rate: 0.5844
+Fees (total fee): 3.61
+Delivery Estimates: Fri, 1 Aug 2025, 09:35 BST
+Recipient ID: 701410264
+Transfer ID: 55292884
+Transfer Status: incoming_payment_waiting
+All tasks completed successfully.
