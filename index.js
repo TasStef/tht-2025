@@ -1,27 +1,35 @@
 const axios = require("axios");
 const {v4: uuidv4} = require("uuid");
+const {format} = require("date-fns");
 const apiConfig = require("./src/configurations/configurations.json")
 const {Profile} = require('./src/models/ProfilesResponse');
 const {Quote} = require('./src/models/QuoteResponse');
-const {Recipient} = require('./src/models/RecipientResponse')
-const {Transfer} = require('./src/models/TransferResponse')
+const {Recipient} = require('./src/models/RecipientResponse');
+const {Transfer} = require('./src/models/TransferResponse');
 
 const config = {
     headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiConfig.token}`
+        "Content-Type": "application/json", "Authorization": `Bearer ${apiConfig.token}`
     },
+}
+
+function logErrorDetails(error) {
+    if (error?.response?.status && error?.response?.headers && error?.response?.data && error) {
+        console.error(`Status ${error.response.status}`);
+        console.error(`Trace ID: ${error.response.headers["x-trace-id"]}`);
+        // console.error(error.response.data);
+    } else {
+        console.error(error);
+    }
 }
 
 const listProfiles = async () => {
     try {
         const url = `https://api.sandbox.transferwise.tech/v2/profiles`;
         const response = await axios.get(url, config);
-        return response.data;
+        return response?.data;
     } catch (error) {
-        console.error(`Status ${error.response.status}`);
-        console.error(`Trace ID: ${error.response.headers["x-trace-id"]}`);
-        console.error(error.response.data);
+        logErrorDetails(error);
         throw error;
     }
 };
@@ -38,9 +46,7 @@ const createQuote = async (profileId) => {
         const response = await axios.post(url, body, config);
         return response.data;
     } catch (error) {
-        console.error(`Status ${error.response.status}`);
-        console.error(`Trace ID: ${error.response.headers["x-trace-id"]}`);
-        console.error(error.response.data);
+        logErrorDetails(error);
         throw error;
     }
 };
@@ -62,9 +68,7 @@ const createRecipient = async () => {
         const response = await axios.post(url, body, config);
         return response.data;
     } catch (error) {
-        console.error(`Status ${error.response.status}`);
-        console.error(`Trace ID: ${error.response.headers["x-trace-id"]}`);
-        console.error(error.response.data);
+        logErrorDetails(error);
         throw error;
     }
 };
@@ -73,7 +77,6 @@ const createTransfer = async (sourceAccount, targetAccount, quoteUuid) => {
     try {
         const url = `https://api.sandbox.transferwise.tech/v1/transfers`;
         const body = {
-            // sourceAccount: sourceAccount,
             targetAccount: targetAccount,
             quoteUuid: quoteUuid,
             customerTransactionId: uuidv4(),
@@ -84,9 +87,7 @@ const createTransfer = async (sourceAccount, targetAccount, quoteUuid) => {
         const response = await axios.post(url, body, config);
         return response.data;
     } catch (error) {
-        console.error(`Status ${error.response.status}`);
-        console.error(`Trace ID: ${error.response.headers["x-trace-id"]}`);
-        console.error(error.response.data);
+        logErrorDetails(error);
         throw error;
     }
 };
@@ -94,8 +95,11 @@ const createTransfer = async (sourceAccount, targetAccount, quoteUuid) => {
 // TASK
 const runLogic = async () => {
     // Task 1: Find out the Personal Profile ID of the user.
+    const rawProfiles = await listProfiles();
+    if (!Array.isArray(rawProfiles) || rawProfiles.length === 0) {
+        throw new Error('Profiles response was undefined');
+    }
 
-    let rawProfiles = await listProfiles();
     let profiles = [];
     rawProfiles.forEach((profile) => profiles.push(new Profile(profile)));
     const personalProfile = profiles.find((profile) => profile.type === 'PERSONAL');
@@ -104,6 +108,9 @@ const runLogic = async () => {
 
     // Create Quote
     const rawQuote = await createQuote(profileId);
+    if (!rawQuote) {
+        throw new Error('Quote response was undefined');
+    }
     const quote = new Quote(rawQuote);
 
     // [IMP] Select BANK_TRANSFER option for both payin and payout
@@ -122,31 +129,55 @@ const runLogic = async () => {
     console.log(`Fees (total fee): ${optionBankTransfer.price.total.value.amount}`);
 
     // Task 6: Console Log the Delivery Estimates (human readable format)
-    console.log(`Delivery Estimates: ${new Date(optionBankTransfer.estimatedDelivery)}`);
+    const deliveryEstimate = new Date(optionBankTransfer.estimatedDelivery).toLocaleString('en-GB', {
+        day: 'numeric',
+        weekday: 'short',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+    });
+    console.log(`Delivery Estimates: ${deliveryEstimate}`);
 
     // Create Recipient (GBP Sort Code)
     const rawRecipient = await createRecipient();
+    if (!rawRecipient) {
+        throw new Error('Recipient response was undefined');
+    }
     const recipient = new Recipient(rawRecipient);
 
     // Task 7: Console Log the Recipient ID
     console.log(`Recipient ID: ${recipient.id}`);
 
     // Create Transfer
-    const rawTransfer = await createTransfer(profileId, recipient.id,quote.id );
+    const rawTransfer = await createTransfer(profileId, recipient.id, quote.id);
+    if (!rawTransfer) {
+        throw new Error('Transfer response was undefined');
+    }
     const transfer = new Transfer(rawTransfer);
 
     // Task 8: Console Log the Transfer ID
     console.log(`Transfer ID: ${transfer.id}`);
 
     // Task 9: Console Log the Transfer Status
-    console.log(`Transfer Status: ${transfer.status}`)
+    console.log(`Transfer Status: ${transfer.status}`);
 
     // Remember to copy all the console logs to a text file for submission.
     console.log("All tasks completed successfully.");
 };
 
-Promise.resolve()
-    .then(() => runLogic())
-    .catch((error) => {
-        console.error("An error occurred", error);
-    });
+if (require.main === module) {
+    Promise.resolve()
+        .then(() => runLogic())
+        .catch((error) => {
+            console.error("An error occurred", error);
+        });
+}
+
+module.exports = {
+    listProfiles,
+    createQuote,
+    createRecipient,
+    createTransfer
+}

@@ -35,11 +35,6 @@ class Fee {
         this.type = data.type;
         this.variable = data.variable;
         this.fixed = data.fixed;
-        // this.transferwise = data.transferwise;
-        // this.payIn = data.payIn;
-        // this.discount = data.discount;
-        // this.partner = data.partner;
-        // this.total = data.total;
     }
 }
 
