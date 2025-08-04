@@ -1,3 +1,16 @@
+# Instructions to Run the Code:
+Run `npm install` to install the required dependencies.
+
+Run `npm start` to execute the code.
+
+### Note
+Adjust the `token` value within [`configurations.json`](src/configurations/configurations.json) if you wish to run with a different token or if the demo one has been rotated. 
+
+# Testing:
+Run `npm test` to execute unit tests.
+
+Run `npm run test:coverage` to view code coverage.
+
 # Instructions
 1. Create an account in [Wise Sandbox](https://sandbox.transferwise.tech).
 2. [IMP] Click on "Skip onboarding" when asked. If asked for OTP it is always "111111". You may use dummy details to create the account.
